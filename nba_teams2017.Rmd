@@ -1,0 +1,204 @@
+---
+title: "nba_teams2017"
+author: "Julien Jaber"
+date: "7/2/2018"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r include=FALSE}
+library(DataComputing)
+library(mosaic)
+library(plotrix)
+library(plotly)
+library("FactoMineR")
+library("factoextra")
+```
+
+
+```{r echo=FALSE}
+nba_teams_2017 <- read.file("/Users/julienjaber/Desktop/Classes/Spring 2018/STAT 154/stat_154/datasets/nba-teams-2017.csv")
+```
+
+```{r}
+teams = nba_teams_2017$team
+nba_teams_2017$team = NULL
+nba_teams_2017$games_played = NULL
+
+rownames(nba_teams_2017) = teams
+head(nba_teams_2017)
+summary(nba_teams_2017)
+```
+
+
+**prcomp performs PCA on data matrix and returns result as an object of class prcomp. Calculation is done by SVD**
+
+```{r}
+X = nba_teams_2017
+pca1 <- prcomp(X,
+              center = TRUE,
+              scale. = TRUE) 
+
+eigenvalues1 = pca1$sdev^2
+
+#these are the first 5 principal components
+scores1 = data.frame(pca1$x)
+head(scores1[, 1:5])
+
+#proportion of total variance explained by first 5 PCs
+prop.pca1 = pca1$sdev^2/sum(pca1$sdev^2)
+(prop.pca1*100)[1:5]
+```
+
+
+```{r}
+#Eigenvalues represent variance. Adding up all eigenvalues should give you an output = p, the number of predictors
+
+total_eigenvalues = sum(eigenvalues1)
+total_eigenvalues
+round(total_eigenvalues, 3) == ncol(X)
+```
+
+
+
+**We see that eigenvalues 1 and 2 explain over 46% of total variance**
+
+**Also the last 8 PCs are useless to include in our study as they explain no variation at all**
+
+```{r}
+eigenvalues1 = round(data.frame(eigenvalues1), 2)
+eigenvalues1 <- eigenvalues1 %>%
+  mutate(perc_variance = round(100* eigenvalues1/total_eigenvalues, 2)) %>%
+  mutate(cumulative = round(cumsum(perc_variance), 2))
+
+
+colnames(eigenvalues1) = c("eigenvalue", "variance(%)", "cumulative(%)")
+eigenvalues1
+```
+
+**The Scree plot is a way to decide how many PCs we want to keep (elbow method). Here we might deduce that 6 PCs might be enough**
+
+```{r}
+fviz_eig(pca1, addlabels = TRUE, ylim = c(0, 50))
+```
+
+**We can also decide on the number of PCs to use in our analysis based on Kaiser's rule which says that we only include eigenvalues that are > 1, so in this case 7 PCs. After that, PCs don't show that much variation so you can exclude them**
+
+
+```{r}
+number_PCA_chosen <- eigenvalues1 %>%
+ filter(eigenvalue > 1)
+
+number_PCA_chosen
+```
+
+
+
+# Studying the cloud of individuals
+
+**Displaying only 1st and 2nd PCs for easy visualization**
+
+```{r}
+plot(scores1$PC1, scores1$PC2, type = "n", main = "Scatter of teams on PC1 and PC2", xlab = "PC1", ylab = "PC2")
+text(x=scores1$PC1, y=scores1$PC2, labels=teams, cex = 0.7)
+abline(h = 0, v = 0)
+```
+
+From this graph, we can see that Golden State Warriors is clearly a stand out team, with the Houston Rockets being the closest to it.
+
+PC1 shows most variability.
+
+PC2 still depicts a good amount of variability, but less overall variability than PC1.
+
+
+### Quality of representation on first two Dimensions
+
+
+```{r}
+library("corrplot")
+ind <- get_pca_ind(pca1)
+
+quality_PC1_PC2 = ind$cos2[, 1:2]
+quality_PC1_PC2
+```
+
+**Comments**
+
+GSW best represented by PC1 (quality = 0.799)
+
+Dallas maverics best represented by PC2 (quality = 0.627)
+
+OKC Worst represented by PC1 is (quality = 0.0033)
+
+Toronto Raptors worst represented by PC2 (quality = 0.0004)
+
+```{r}
+fviz_pca_ind(pca1, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+
+corrplot(ind$cos2, is.corr=FALSE) 
+
+#quality of representation on first two PCs
+fviz_cos2(pca1, choice = "ind", axes = 1:2)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Contributions: How much does each observation contribute to the PC
+
+```{r}
+# Contributions to the principal components
+ind$contrib[, 1:2]
+```
+
+
+
+**Contributions of variables to PCs**
+
+```{r}
+head(ind$contrib)
+
+# Aggregate contributions of variables to PC1 and PC2
+fviz_contrib(pca1, choice = "ind", axes = 1:2, top = 10)
+```
+
+
+# Studying Variables
+
+
+```{r}
+var <- get_pca_var(pca1)
+
+# Coordinates
+head(var$coord)[, 1:5]
+```
+
+**Correlation circle - The correlation between a variable and a principal component (PC)**
+
+```{r}
+fviz_pca_var(pca1, col.var = "black")
+```
+
+**Positively correlated variables are grouped together**
+
+**Negatively correlated variables are positioned on opposite sides of the plot origin (opposed quadrants)**
+
+**Variables that are away from the origin are well represented on the map**
+
+As expected some variables (wins, losses) will be symmetrical opposite of each other by origin
