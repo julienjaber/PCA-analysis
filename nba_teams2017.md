@@ -10,6 +10,36 @@ output:
 
 
 
+```r
+if(!require(devtools)) install.packages("devtools")
+```
+
+```
+## Loading required package: devtools
+```
+
+```r
+devtools::install_github("julienjaber/factoextra")
+```
+
+```
+## Downloading GitHub repo julienjaber/factoextra@master
+## from URL https://api.github.com/repos/julienjaber/factoextra/zipball/master
+```
+
+```
+## Installation failed: Not Found (404)
+```
+
+```r
+library("FactoMineR")
+library("factoextra")
+```
+
+```
+## Welcome! Related Books: `Practical Guide To Cluster Analysis in R` at https://goo.gl/13EFCZ
+```
+
 
 ```
 ## Reading data with read.csv()
@@ -252,7 +282,7 @@ eigenvalues1
 fviz_eig(pca1, addlabels = TRUE, ylim = c(0, 50))
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 **We can also decide on the number of PCs to use in our analysis based on Kaiser's rule which says that we only include eigenvalues that are > 1, so in this case 7 PCs. After that, PCs don't show that much variation so you can exclude them**
 
@@ -289,7 +319,7 @@ text(x=scores1$PC1, y=scores1$PC2, labels=teams, cex = 0.7)
 abline(h = 0, v = 0)
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 From this graph, we can see that Golden State Warriors is clearly a stand out team, with the Houston Rockets being the closest to it.
 
@@ -369,20 +399,20 @@ fviz_pca_ind(pca1, col.ind = "cos2",
              )
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 ```r
 corrplot(ind$cos2, is.corr=FALSE) 
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-11-2.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-12-2.png)<!-- -->
 
 ```r
 #quality of representation on first two PCs
 fviz_cos2(pca1, choice = "ind", axes = 1:2)
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-11-3.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-12-3.png)<!-- -->
 
 
 
@@ -499,7 +529,7 @@ head(ind$contrib)
 fviz_contrib(pca1, choice = "ind", axes = 1:2, top = 10)
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 
 # Studying Variables
@@ -530,7 +560,7 @@ head(var$coord)[, 1:5]
 fviz_pca_var(pca1, col.var = "black")
 ```
 
-![](nba_teams2017_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](nba_teams2017_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 **Positively correlated variables are grouped together**
 
