@@ -12,10 +12,15 @@ library(DataComputing)
 library(mosaic)
 library(plotrix)
 library(plotly)
+```
+
+```{r}
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("julienjaber/factoextra")
+
 library("FactoMineR")
 library("factoextra")
 ```
-
 
 ```{r echo=FALSE}
 nba_teams_2017 <- read.file("/Users/julienjaber/Desktop/Classes/Spring 2018/STAT 154/stat_154/datasets/nba-teams-2017.csv")
