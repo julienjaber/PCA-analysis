@@ -10,7 +10,6 @@ output:
 
 
 
-
 ```r
 if(!require(devtools)) install.packages("devtools")
 ```
